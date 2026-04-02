@@ -21,63 +21,66 @@
       background: #faf8f4;
       min-height: 100vh;
       color: #1a1a1a;
-      padding-bottom: 230px;
+      padding-bottom: 80px;
     }
+    /* ②ヘッダーを小さく */
     .header {
-      padding: 40px 24px 20px;
+      padding: 8px 16px;
       border-bottom: 1px solid #e8e4de;
       display: flex;
-      align-items: baseline;
-      gap: 12px;
+      align-items: center;
+      gap: 8px;
       position: sticky;
       top: 0;
       background: #faf8f4;
       z-index: 10;
     }
-    .logo { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
+    .logo { font-family: 'Noto Serif JP', serif; font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
     .logo-sub { font-size: 13px; color: #1a1a1a; font-weight: 400; letter-spacing: 0.05em; }
 
-    .wrap { max-width: 780px; margin: 0 auto; padding: 20px 24px 0; }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 12px 16px 0; }
 
     .status-bar {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .counter { font-size: 13px; color: #1a1a1a; }
     .counter-num { color: #41c9b4; font-weight: 600; font-size: 15px; }
 
+    /* ④更新ボタン：focus時も色が戻るよう修正 */
     .btn-refresh {
       background: transparent; border: 1.5px solid #e8e4de;
       border-radius: 6px; padding: 6px 14px;
       font-size: 12px; font-weight: 500; cursor: pointer;
       font-family: 'Noto Sans JP', sans-serif; color: #1a1a1a;
+      outline: none;
     }
     .btn-refresh:hover { border-color: #41c9b4; color: #41c9b4; }
+    .btn-refresh:focus { border-color: #e8e4de; color: #1a1a1a; }
+    .btn-refresh:active { border-color: #41c9b4; color: #41c9b4; }
 
     .limit-msg {
       background: #fff3f3; color: #c0392b;
-      border-radius: 6px; padding: 12px 16px;
-      font-size: 13px; margin-bottom: 16px;
+      border-radius: 6px; padding: 10px 16px;
+      font-size: 13px; margin-bottom: 12px;
       text-align: center;
     }
 
-    .timeline { display: flex; flex-direction: column; gap: 10px; }
+    .timeline { display: flex; flex-direction: column; gap: 8px; }
 
+    /* ③投稿時間なし・枠を広げる */
     .post-card {
       background: #fff; border: 1px solid #e8e4de;
-      border-radius: 6px; padding: 14px 18px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px;
+      border-radius: 6px; padding: 12px 16px;
     }
-    .post-emojis { font-size: 24px; letter-spacing: 3px; flex: 1; word-break: break-all; }
-    .post-time { font-size: 11px; color: #bbb; white-space: nowrap; flex-shrink: 0; }
+    .post-emojis { font-size: 24px; letter-spacing: 3px; word-break: break-all; }
 
     .empty-state {
       text-align: center; padding: 60px 20px;
       color: #bbb; font-size: 14px; line-height: 2;
     }
 
-    /* ピッカー全体 */
+    /* ⑤ピッカー全体 */
     .picker-wrap {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: #fff; border-top: 1px solid #e8e4de;
@@ -85,14 +88,28 @@
       z-index: 20;
     }
 
+    /* ⑤折りたたみバー */
+    .toggle-bar {
+      display: flex; align-items: center; justify-content: center;
+      padding: 6px; cursor: pointer;
+      border-bottom: 1px solid #f0ede8;
+      user-select: none;
+    }
+    .toggle-bar span { font-size: 12px; color: #bbb; }
+
+    /* ⑤折りたたみ対象 */
+    .picker-body { overflow: hidden; transition: max-height 0.25s ease; }
+    .picker-body.open { max-height: 300px; }
+    .picker-body.closed { max-height: 0; }
+
     /* 選択中の絵文字 + 投稿ボタン */
     .selected-area {
       display: flex; align-items: center; gap: 10px;
-      padding: 10px 16px; border-bottom: 1px solid #f0ede8;
+      padding: 8px 16px; border-bottom: 1px solid #f0ede8;
     }
     .selected-display {
       flex: 1; font-size: 22px; letter-spacing: 2px;
-      min-height: 36px; word-break: break-all;
+      min-height: 34px; word-break: break-all;
       display: flex; align-items: center;
     }
     .selected-placeholder { font-size: 13px; color: #bbb; }
@@ -113,28 +130,28 @@
     }
     .btn-post:disabled { background-color: #a8e8df !important; cursor: not-allowed; }
 
-    /* カテゴリタブ */
+    /* ①カテゴリタブ：折り返して全部表示・絵文字小さく */
     .cat-tabs {
-      display: flex; overflow-x: auto;
+      display: flex; flex-wrap: wrap;
       border-bottom: 1px solid #f0ede8;
-      scrollbar-width: none;
     }
-    .cat-tabs::-webkit-scrollbar { display: none; }
     .cat-tab {
-      padding: 7px 14px; font-size: 20px; cursor: pointer;
-      border: none; background: transparent; flex-shrink: 0;
+      flex: 1; min-width: 0;
+      padding: 4px 2px; font-size: 16px; cursor: pointer;
+      border: none; background: transparent;
       border-bottom: 2px solid transparent;
+      text-align: center;
     }
     .cat-tab.active { border-bottom-color: #41c9b4; background: #f0fdfb; }
 
     /* 絵文字グリッド */
     .emoji-grid {
       display: flex; flex-wrap: wrap; gap: 2px;
-      padding: 8px 10px; max-height: 120px;
+      padding: 6px 8px; max-height: 110px;
       overflow-y: auto;
     }
     .emoji-btn {
-      font-size: 26px; padding: 4px 6px; cursor: pointer;
+      font-size: 24px; padding: 3px 5px; cursor: pointer;
       border: none; background: transparent;
       border-radius: 6px; line-height: 1;
       transition: background 0.1s;
@@ -144,7 +161,7 @@
 
     /* トースト */
     #toast {
-      position: fixed; bottom: 240px; left: 50%;
+      position: fixed; bottom: 80px; left: 50%;
       transform: translateX(-50%) translateY(10px);
       background: #1a1a1a; color: #fff;
       padding: 10px 22px; border-radius: 100px;
@@ -158,8 +175,7 @@
     .footer a { color: #41c9b4; font-weight: 500; text-decoration: none; }
 
     @media (max-width: 480px) {
-      .wrap { padding: 16px 14px 0; }
-      .header { padding: 24px 14px 16px; }
+      .wrap { padding: 10px 12px 0; }
     }
   </style>
 </head>
@@ -197,18 +213,27 @@
 <!-- 絵文字ピッカー（画面下部固定） -->
 <div class="picker-wrap">
 
-  <div class="selected-area">
-    <div class="selected-display" id="selectedDisplay">
-      <span class="selected-placeholder">絵文字を選んでください（最大10個）</span>
-    </div>
-    <span class="count-badge" id="countBadge"></span>
-    <button class="btn-clear" onclick="clearSelected()">✕</button>
-    <button class="btn-post" id="postBtn" onclick="submitPost()" disabled>投稿</button>
+  <!-- ⑤折りたたみバー -->
+  <div class="toggle-bar" id="toggleBar" onclick="togglePicker()">
+    <span id="toggleIcon">▲</span>
   </div>
 
-  <div class="cat-tabs" id="catTabs"></div>
-  <div class="emoji-grid" id="emojiGrid"></div>
+  <!-- ⑤折りたたみ対象 -->
+  <div class="picker-body open" id="pickerBody">
 
+    <div class="selected-area">
+      <div class="selected-display" id="selectedDisplay">
+        <span class="selected-placeholder">絵文字を選んでください（最大10個）</span>
+      </div>
+      <span class="count-badge" id="countBadge"></span>
+      <button class="btn-clear" onclick="clearSelected()">✕</button>
+      <button class="btn-post" id="postBtn" onclick="submitPost()" disabled>投稿</button>
+    </div>
+
+    <div class="cat-tabs" id="catTabs"></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -337,6 +362,7 @@ function updateSelectedDisplay() {
 
 // 投稿一覧を取得
 function loadPosts() {
+  var btn = document.querySelector('.btn-refresh');
   fetch(GAS_URL + '?action=list')
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -351,10 +377,13 @@ function loadPosts() {
     })
     .catch(function(e) {
       document.getElementById('timeline').innerHTML = '<div class="empty-state">読み込みエラー<br>' + e.message + '</div>';
+    })
+    .finally(function() {
+      if (btn) btn.blur(); // ④フォーカスを外して色を戻す
     });
 }
 
-// タイムラインを描画
+// タイムラインを描画（③時刻なし）
 function renderTimeline(posts) {
   var tl = document.getElementById('timeline');
   if (!posts || posts.length === 0) {
@@ -365,20 +394,19 @@ function renderTimeline(posts) {
   posts.forEach(function(post) {
     var card = document.createElement('div');
     card.className = 'post-card';
-    var timeStr = formatTime(post.timestamp);
-    card.innerHTML =
-      '<div class="post-emojis">' + post.emojis + '</div>' +
-      '<div class="post-time">' + timeStr + '</div>';
+    card.innerHTML = '<div class="post-emojis">' + post.emojis + '</div>';
     tl.appendChild(card);
   });
 }
 
-// 時刻フォーマット
-function formatTime(ts) {
-  var d = new Date(ts);
-  var h = d.getHours().toString().padStart(2, '0');
-  var m = d.getMinutes().toString().padStart(2, '0');
-  return h + ':' + m;
+// ⑤折りたたみトグル
+var pickerOpen = true;
+function togglePicker() {
+  pickerOpen = !pickerOpen;
+  var body = document.getElementById('pickerBody');
+  var icon = document.getElementById('toggleIcon');
+  body.className = 'picker-body ' + (pickerOpen ? 'open' : 'closed');
+  icon.textContent = pickerOpen ? '▲' : '▼';
 }
 
 // 投稿を送信
