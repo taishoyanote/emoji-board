@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>絵文字掲示板</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#41c9b4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="絵文字板">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #faf8f4;
+      min-height: 100vh;
+      color: #1a1a1a;
+      padding-bottom: 230px;
+    }
+    .header {
+      padding: 40px 24px 20px;
+      border-bottom: 1px solid #e8e4de;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      background: #faf8f4;
+      z-index: 10;
+    }
+    .logo { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
+    .logo-sub { font-size: 13px; color: #1a1a1a; font-weight: 400; letter-spacing: 0.05em; }
+
+    .wrap { max-width: 780px; margin: 0 auto; padding: 20px 24px 0; }
+
+    .status-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .counter { font-size: 13px; color: #1a1a1a; }
+    .counter-num { color: #41c9b4; font-weight: 600; font-size: 15px; }
+
+    .btn-refresh {
+      background: transparent; border: 1.5px solid #e8e4de;
+      border-radius: 6px; padding: 6px 14px;
+      font-size: 12px; font-weight: 500; cursor: pointer;
+      font-family: 'Noto Sans JP', sans-serif; color: #1a1a1a;
+    }
+    .btn-refresh:hover { border-color: #41c9b4; color: #41c9b4; }
+
+    .limit-msg {
+      background: #fff3f3; color: #c0392b;
+      border-radius: 6px; padding: 12px 16px;
+      font-size: 13px; margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .timeline { display: flex; flex-direction: column; gap: 10px; }
+
+    .post-card {
+      background: #fff; border: 1px solid #e8e4de;
+      border-radius: 6px; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    .post-emojis { font-size: 24px; letter-spacing: 3px; flex: 1; word-break: break-all; }
+    .post-time { font-size: 11px; color: #bbb; white-space: nowrap; flex-shrink: 0; }
+
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+      color: #bbb; font-size: 14px; line-height: 2;
+    }
+
+    /* ピッカー全体 */
+    .picker-wrap {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #e8e4de;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+      z-index: 20;
+    }
+
+    /* 選択中の絵文字 + 投稿ボタン */
+    .selected-area {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; border-bottom: 1px solid #f0ede8;
+    }
+    .selected-display {
+      flex: 1; font-size: 22px; letter-spacing: 2px;
+      min-height: 36px; word-break: break-all;
+      display: flex; align-items: center;
+    }
+    .selected-placeholder { font-size: 13px; color: #bbb; }
+    .count-badge { font-size: 12px; color: #41c9b4; font-weight: 600; flex-shrink: 0; }
+    .btn-clear {
+      background: transparent; border: 1.5px solid #e8e4de;
+      border-radius: 6px; padding: 6px 10px;
+      font-size: 12px; cursor: pointer;
+      font-family: 'Noto Sans JP', sans-serif; color: #1a1a1a;
+      flex-shrink: 0;
+    }
+    .btn-post {
+      background-color: #41c9b4 !important; color: #fff !important;
+      border: none; border-radius: 6px;
+      padding: 8px 18px; font-size: 13px; font-weight: 500;
+      cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+      flex-shrink: 0;
+    }
+    .btn-post:disabled { background-color: #a8e8df !important; cursor: not-allowed; }
+
+    /* カテゴリタブ */
+    .cat-tabs {
+      display: flex; overflow-x: auto;
+      border-bottom: 1px solid #f0ede8;
+      scrollbar-width: none;
+    }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      padding: 7px 14px; font-size: 20px; cursor: pointer;
+      border: none; background: transparent; flex-shrink: 0;
+      border-bottom: 2px solid transparent;
+    }
+    .cat-tab.active { border-bottom-color: #41c9b4; background: #f0fdfb; }
+
+    /* 絵文字グリッド */
+    .emoji-grid {
+      display: flex; flex-wrap: wrap; gap: 2px;
+      padding: 8px 10px; max-height: 120px;
+      overflow-y: auto;
+    }
+    .emoji-btn {
+      font-size: 26px; padding: 4px 6px; cursor: pointer;
+      border: none; background: transparent;
+      border-radius: 6px; line-height: 1;
+      transition: background 0.1s;
+    }
+    .emoji-btn:hover { background: #f0fdfb; }
+    .emoji-btn:active { background: #d0f0ea; transform: scale(0.88); }
+
+    /* トースト */
+    #toast {
+      position: fixed; bottom: 240px; left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: #1a1a1a; color: #fff;
+      padding: 10px 22px; border-radius: 100px;
+      font-size: 13px; z-index: 100;
+      opacity: 0; transition: all .25s;
+      pointer-events: none; white-space: nowrap;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .footer { text-align: center; font-size: 13px; color: #1a1a1a; margin-top: 40px; line-height: 2; }
+    .footer a { color: #41c9b4; font-weight: 500; text-decoration: none; }
+
+    @media (max-width: 480px) {
+      .wrap { padding: 16px 14px 0; }
+      .header { padding: 24px 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <span class="logo">絵文字</span>
+  <span class="logo-sub">掲示板</span>
+</div>
+
+<div class="wrap">
+
+  <div class="status-bar">
+    <div class="counter">
+      本日 <span class="counter-num" id="postCount">－</span> / 100 件
+    </div>
+    <button class="btn-refresh" onclick="loadPosts()">↺ 更新</button>
+  </div>
+
+  <div id="limitMsg" class="limit-msg" style="display:none;">
+    本日の投稿上限（100件）に達しました。明日 AM9時にリセットされます。
+  </div>
+
+  <div class="timeline" id="timeline">
+    <div class="empty-state">読み込み中...</div>
+  </div>
+
+  <div class="footer">
+    製作者：<a href="https://note.com/ai48start" target="_blank" rel="noopener noreferrer">泰祥屋note店</a><br>
+    <a href="https://note.com/ai48start" target="_blank" rel="noopener noreferrer">https://note.com/ai48start</a>
+  </div>
+
+</div>
+
+<!-- 絵文字ピッカー（画面下部固定） -->
+<div class="picker-wrap">
+
+  <div class="selected-area">
+    <div class="selected-display" id="selectedDisplay">
+      <span class="selected-placeholder">絵文字を選んでください（最大10個）</span>
+    </div>
+    <span class="count-badge" id="countBadge"></span>
+    <button class="btn-clear" onclick="clearSelected()">✕</button>
+    <button class="btn-post" id="postBtn" onclick="submitPost()" disabled>投稿</button>
+  </div>
+
+  <div class="cat-tabs" id="catTabs"></div>
+  <div class="emoji-grid" id="emojiGrid"></div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ★★★ここにGASのURLを貼り付けてください★★★
+var GAS_URL = "https://script.google.com/macros/s/AKfycbx9vbFEdTjblO2xGqkTqek_73xYVBAaVavENpPBm_tqrNQNbnRQ91iQ4v4HflilhRg1iQ/exec";
+// ★★★★★★★★★★★★★★★★★★★★★★★
+
+// 絵文字セット（カテゴリ別）
+var EMOJI_CATS = [
+  {
+    label: '😀', name: '顔・気持ち',
+    emojis: ['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😍','🥰','😘','😋','😛','😜','🤪','😎','🤩','🥳','😏','😒','😞','😔','😟','🙁','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤯','😳','😱','😨','🤗','🤔','😴','🤑','🤠','😷','🤒','🥴','🥶','🥵']
+  },
+  {
+    label: '🐶', name: '動物',
+    emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🦆','🦅','🦉','🐺','🐗','🐴','🦄','🦋','🐝','🐛','🐢','🐍','🦎','🐬','🐳','🦈','🐙','🐘','🦒','🦓','🐿️','🦔','🦜','🦢','🦩']
+  },
+  {
+    label: '🍎', name: '食べ物・飲み物',
+    emojis: ['🍎','🍊','🍋','🍇','🍓','🍒','🍑','🥝','🍌','🍉','🍈','🫐','🍔','🍕','🌮','🌯','🍜','🍣','🍱','🍛','🍝','🍲','🍦','🍩','🍰','🎂','🍫','🍬','🍭','🍮','🍯','☕','🍵','🧋','🍺','🥂','🍷','🧃','🥤','🍾']
+  },
+  {
+    label: '🌸', name: '自然・天気',
+    emojis: ['🌸','🌺','🌻','🌹','🌷','💐','🍀','🍁','🍂','🍃','🌿','🌱','🌲','🌳','🌴','🌵','🌾','🍄','🌈','⭐','🌟','✨','💫','⚡','🔥','💧','🌊','❄️','⛄','🌙','☀️','🌝','🌛','☁️','⛅','🌤️','🌦️','🌧️','⛈️','🌨️','🌍','🌏']
+  },
+  {
+    label: '❤️', name: 'ハート・記号',
+    emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','💕','💞','💓','💗','💖','💘','💝','✌️','👍','👎','👏','🙌','🤝','🫶','💪','👋','🤜','🤛','✊','☮️','🕊️','♾️','✅','❎','💯','‼️','❓','💤','💬','💭']
+  },
+  {
+    label: '🎉', name: 'その他',
+    emojis: ['🎵','🎶','🎉','🎊','🎁','🏆','🥇','🥈','🥉','🎮','🕹️','🎲','🎯','🎨','🖼️','📚','✏️','📝','💻','📱','🔑','💡','🚀','✈️','🚗','🏠','🏖️','🏔️','🎈','🎀','🎭','🎬','📸','🌠','🎆','🎇','🧧','🎗️']
+  }
+];
+
+var selected = [];
+
+// 初期化
+function init() {
+  buildCatTabs();
+  renderEmojiGrid(0);
+  loadPosts();
+}
+
+// カテゴリタブを生成
+function buildCatTabs() {
+  var tabs = document.getElementById('catTabs');
+  EMOJI_CATS.forEach(function(cat, i) {
+    var btn = document.createElement('button');
+    btn.className = 'cat-tab' + (i === 0 ? ' active' : '');
+    btn.textContent = cat.label;
+    btn.title = cat.name;
+    btn.onclick = (function(idx) {
+      return function() {
+        document.querySelectorAll('.cat-tab').forEach(function(t, j) {
+          t.classList.toggle('active', j === idx);
+        });
+        renderEmojiGrid(idx);
+      };
+    })(i);
+    tabs.appendChild(btn);
+  });
+}
+
+// 絵文字グリッドを生成
+function renderEmojiGrid(catIdx) {
+  var grid = document.getElementById('emojiGrid');
+  grid.innerHTML = '';
+  EMOJI_CATS[catIdx].emojis.forEach(function(emoji) {
+    var btn = document.createElement('button');
+    btn.className = 'emoji-btn';
+    btn.textContent = emoji;
+    btn.onclick = (function(e) {
+      return function() { addEmoji(e); };
+    })(emoji);
+    grid.appendChild(btn);
+  });
+}
+
+// 絵文字を選択に追加
+function addEmoji(emoji) {
+  if (selected.length >= 10) {
+    showToast('絵文字は最大10個まで');
+    return;
+  }
+  selected.push(emoji);
+  updateSelectedDisplay();
+}
+
+// 選択をクリア
+function clearSelected() {
+  selected = [];
+  updateSelectedDisplay();
+}
+
+// 選択中の表示を更新
+function updateSelectedDisplay() {
+  var display = document.getElementById('selectedDisplay');
+  var badge = document.getElementById('countBadge');
+  var postBtn = document.getElementById('postBtn');
+
+  if (selected.length === 0) {
+    display.innerHTML = '<span class="selected-placeholder">絵文字を選んでください（最大10個）</span>';
+    badge.textContent = '';
+    postBtn.disabled = true;
+  } else {
+    display.textContent = selected.join('');
+    badge.textContent = selected.length + '/10';
+    postBtn.disabled = false;
+  }
+}
+
+// 投稿一覧を取得
+function loadPosts() {
+  fetch(GAS_URL + '?action=list')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) throw new Error(data.error);
+      renderTimeline(data.posts);
+      document.getElementById('postCount').textContent = data.count;
+      var limitReached = data.remaining <= 0;
+      document.getElementById('limitMsg').style.display = limitReached ? 'block' : 'none';
+      if (limitReached) {
+        document.getElementById('postBtn').disabled = true;
+      }
+    })
+    .catch(function(e) {
+      document.getElementById('timeline').innerHTML = '<div class="empty-state">読み込みエラー<br>' + e.message + '</div>';
+    });
+}
+
+// タイムラインを描画
+function renderTimeline(posts) {
+  var tl = document.getElementById('timeline');
+  if (!posts || posts.length === 0) {
+    tl.innerHTML = '<div class="empty-state">まだ投稿がありません<br>絵文字を選んで投稿してみましょう！</div>';
+    return;
+  }
+  tl.innerHTML = '';
+  posts.forEach(function(post) {
+    var card = document.createElement('div');
+    card.className = 'post-card';
+    var timeStr = formatTime(post.timestamp);
+    card.innerHTML =
+      '<div class="post-emojis">' + post.emojis + '</div>' +
+      '<div class="post-time">' + timeStr + '</div>';
+    tl.appendChild(card);
+  });
+}
+
+// 時刻フォーマット
+function formatTime(ts) {
+  var d = new Date(ts);
+  var h = d.getHours().toString().padStart(2, '0');
+  var m = d.getMinutes().toString().padStart(2, '0');
+  return h + ':' + m;
+}
+
+// 投稿を送信
+function submitPost() {
+  if (selected.length === 0) return;
+  var emojis = selected.join('');
+  var postBtn = document.getElementById('postBtn');
+  postBtn.disabled = true;
+
+  fetch(GAS_URL + '?action=post&emojis=' + encodeURIComponent(emojis))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) throw new Error(data.error);
+      clearSelected();
+      loadPosts();
+      showToast('投稿しました！');
+    })
+    .catch(function(e) {
+      showToast('投稿エラー: ' + e.message);
+      postBtn.disabled = false;
+    });
+}
+
+// トースト表示
+var toastTimer;
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+init();
+</script>
+</body>
+</html>
