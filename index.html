@@ -102,18 +102,27 @@
     .picker-body.open { max-height: 300px; }
     .picker-body.closed { max-height: 0; }
 
-    /* 選択中の絵文字 + 投稿ボタン */
+    /* ②選択中の絵文字：1行表示エリア */
     .selected-area {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 16px; border-bottom: 1px solid #f0ede8;
+      display: flex; flex-direction: column;
+      border-bottom: 1px solid #f0ede8;
+    }
+    /* 絵文字表示行 */
+    .selected-display-row {
+      padding: 8px 16px 4px;
+      min-height: 38px; display: flex; align-items: center;
     }
     .selected-display {
-      flex: 1; font-size: 22px; letter-spacing: 2px;
-      min-height: 34px; word-break: break-all;
-      display: flex; align-items: center;
+      font-size: 22px; letter-spacing: 2px;
+      white-space: nowrap; overflow: hidden;
     }
     .selected-placeholder { font-size: 13px; color: #bbb; }
-    .count-badge { font-size: 12px; color: #41c9b4; font-weight: 600; flex-shrink: 0; }
+    /* ボタン行：文字数・×・投稿 */
+    .selected-btns {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 16px 8px;
+    }
+    .count-badge { font-size: 12px; color: #41c9b4; font-weight: 600; flex: 1; }
     .btn-clear {
       background: transparent; border: 1.5px solid #e8e4de;
       border-radius: 6px; padding: 6px 10px;
@@ -222,12 +231,16 @@
   <div class="picker-body open" id="pickerBody">
 
     <div class="selected-area">
-      <div class="selected-display" id="selectedDisplay">
-        <span class="selected-placeholder">絵文字を選んでください（最大10個）</span>
+      <div class="selected-display-row">
+        <div class="selected-display" id="selectedDisplay">
+          <span class="selected-placeholder">絵文字を選んでください（最大10個）</span>
+        </div>
       </div>
-      <span class="count-badge" id="countBadge"></span>
-      <button class="btn-clear" onclick="clearSelected()">✕</button>
-      <button class="btn-post" id="postBtn" onclick="submitPost()" disabled>投稿</button>
+      <div class="selected-btns">
+        <span class="count-badge" id="countBadge"></span>
+        <button class="btn-clear" onclick="deleteLastEmoji()">✕</button>
+        <button class="btn-post" id="postBtn" onclick="submitPost()" disabled>投稿</button>
+      </div>
     </div>
 
     <div class="cat-tabs" id="catTabs"></div>
@@ -337,7 +350,14 @@ function addEmoji(emoji) {
   updateSelectedDisplay();
 }
 
-// 選択をクリア
+// ①最後の絵文字を1個削除
+function deleteLastEmoji() {
+  if (selected.length === 0) return;
+  selected.pop();
+  updateSelectedDisplay();
+}
+
+// 全クリア（投稿後などに使用）
 function clearSelected() {
   selected = [];
   updateSelectedDisplay();
