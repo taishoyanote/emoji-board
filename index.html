@@ -56,8 +56,6 @@
       outline: none;
     }
     .btn-refresh:hover { border-color: #41c9b4; color: #41c9b4; }
-    .btn-refresh:focus { border-color: #e8e4de; color: #1a1a1a; }
-    .btn-refresh:active { border-color: #41c9b4; color: #41c9b4; }
 
     .limit-msg {
       background: #fff3f3; color: #c0392b;
@@ -201,7 +199,7 @@
     <div class="counter">
       本日 <span class="counter-num" id="postCount">－</span> / 100 件
     </div>
-    <button class="btn-refresh" onclick="loadPosts()">↺ 更新</button>
+    <button class="btn-refresh" onclick="this.blur(); loadPosts();">↺ 更新</button>
   </div>
 
   <div id="limitMsg" class="limit-msg" style="display:none;">
@@ -382,7 +380,6 @@ function updateSelectedDisplay() {
 
 // 投稿一覧を取得
 function loadPosts() {
-  var btn = document.querySelector('.btn-refresh');
   fetch(GAS_URL + '?action=list')
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -397,9 +394,6 @@ function loadPosts() {
     })
     .catch(function(e) {
       document.getElementById('timeline').innerHTML = '<div class="empty-state">読み込みエラー<br>' + e.message + '</div>';
-    })
-    .finally(function() {
-      if (btn) btn.blur(); // ④フォーカスを外して色を戻す
     });
 }
 
