@@ -55,7 +55,7 @@
       font-family: 'Noto Sans JP', sans-serif; color: #1a1a1a;
       outline: none;
     }
-    .btn-refresh:hover { border-color: #41c9b4; color: #41c9b4; }
+    .btn-refresh.pressed { border-color: #41c9b4; color: #41c9b4; }
 
     .limit-msg {
       background: #fff3f3; color: #c0392b;
@@ -199,7 +199,7 @@
     <div class="counter">
       本日 <span class="counter-num" id="postCount">－</span> / 100 件
     </div>
-    <button class="btn-refresh" onclick="this.blur(); loadPosts();">↺ 更新</button>
+    <button class="btn-refresh" onclick="var b=this; b.classList.add('pressed'); b.blur(); loadPosts(); setTimeout(function(){ b.classList.remove('pressed'); }, 500);">↺ 更新</button>
   </div>
 
   <div id="limitMsg" class="limit-msg" style="display:none;">
