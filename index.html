@@ -35,7 +35,7 @@
       background: #faf8f4;
       z-index: 10;
     }
-    .logo { font-family: 'Noto Serif JP', serif; font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+    .logo { font-family: 'Noto Serif JP', serif; font-size: 13px; font-weight: 600; letter-spacing: -0.5px; }
     .logo-sub { font-size: 13px; color: #1a1a1a; font-weight: 400; letter-spacing: 0.05em; }
 
     .wrap { max-width: 780px; margin: 0 auto; padding: 12px 16px 0; }
@@ -73,7 +73,7 @@
       background: #fff; border: 1px solid #e8e4de;
       border-radius: 6px; padding: 12px 16px;
     }
-    .post-emojis { font-size: 24px; letter-spacing: 3px; word-break: break-all; }
+    .post-emojis { font-size: 24px; letter-spacing: 3px; white-space: nowrap; overflow: hidden; }
 
     .empty-state {
       text-align: center; padding: 60px 20px;
@@ -95,7 +95,7 @@
       border-bottom: 1px solid #f0ede8;
       user-select: none;
     }
-    .toggle-bar span { font-size: 12px; color: #bbb; }
+    .toggle-bar span { font-size: 12px; color: #1a1a1a; }
 
     /* ⑤折りたたみ対象 */
     .picker-body { overflow: hidden; transition: max-height 0.25s ease; }
@@ -215,7 +215,7 @@
 
   <!-- ⑤折りたたみバー -->
   <div class="toggle-bar" id="toggleBar" onclick="togglePicker()">
-    <span id="toggleIcon">▲</span>
+    <span id="toggleIcon">▼</span>
   </div>
 
   <!-- ⑤折りたたみ対象 -->
@@ -406,7 +406,7 @@ function togglePicker() {
   var body = document.getElementById('pickerBody');
   var icon = document.getElementById('toggleIcon');
   body.className = 'picker-body ' + (pickerOpen ? 'open' : 'closed');
-  icon.textContent = pickerOpen ? '▲' : '▼';
+  icon.textContent = pickerOpen ? '▼' : '▲';
 }
 
 // 投稿を送信
