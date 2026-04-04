@@ -1,6 +1,6 @@
 {
-  "name": "絵文字掲示板",
-  "short_name": "絵文字板",
+  "name": "at9",
+  "short_name": "at9",
   "description": "絵文字だけで話す匿名掲示板",
   "start_url": "./index.html",
   "display": "standalone",
