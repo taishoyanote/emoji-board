@@ -120,14 +120,41 @@
       display: flex; align-items: center; gap: 8px;
       padding: 4px 16px 8px;
     }
-    .count-badge { font-size: 12px; color: #41c9b4; font-weight: 600; flex: 1; }
+    /* ボタン行：文字数・◀▶スペース・×・投稿 */
+    .selected-btns {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 16px 8px;
+    }
+    .count-badge { font-size: 12px; color: #41c9b4; font-weight: 600; }
+    .btn-sep { width: 1px; height: 22px; background: #e8e4de; flex-shrink: 0; }
+    .btn-ctrl {
+      background: transparent; border: 1.5px solid #e8e4de;
+      border-radius: 6px; padding: 6px 10px;
+      font-size: 13px; cursor: pointer;
+      font-family: 'Noto Sans JP', sans-serif; color: #1a1a1a;
+      flex-shrink: 0;
+    }
+    .btn-space {
+      background: transparent; border: 1.5px solid #e8e4de;
+      border-radius: 6px; padding: 6px 14px;
+      font-size: 11px; cursor: pointer;
+      font-family: 'Noto Sans JP', sans-serif; color: #1a1a1a;
+      flex-shrink: 0;
+    }
     .btn-clear {
       background: transparent; border: 1.5px solid #e8e4de;
       border-radius: 6px; padding: 6px 10px;
       font-size: 12px; cursor: pointer;
       font-family: 'Noto Sans JP', sans-serif; color: #1a1a1a;
-      flex-shrink: 0;
+      flex-shrink: 0; margin-left: auto;
     }
+    /* カーソル点滅 */
+    .emoji-cursor {
+      display: inline-block; width: 2px; height: 22px;
+      background: #41c9b4; vertical-align: middle;
+      animation: cur-blink 1s step-end infinite;
+    }
+    @keyframes cur-blink { 50% { opacity: 0; } }
     .btn-post {
       background-color: #41c9b4 !important; color: #fff !important;
       border: none; border-radius: 6px;
@@ -235,7 +262,12 @@
       </div>
       <div class="selected-btns">
         <span class="count-badge" id="countBadge"></span>
-        <button class="btn-clear" onclick="deleteLastEmoji()">✕</button>
+        <div class="btn-sep"></div>
+        <button class="btn-ctrl" onclick="moveCursor(-1)">◀</button>
+        <button class="btn-ctrl" onclick="moveCursor(1)">▶</button>
+        <button class="btn-space" onclick="insertSpace()">空白</button>
+        <div class="btn-sep"></div>
+        <button class="btn-clear" onclick="deleteAtCursor()">✕</button>
         <button class="btn-post" id="postBtn" onclick="submitPost()" disabled>投稿</button>
       </div>
     </div>
@@ -285,7 +317,7 @@ var EMOJI_CATS = [
   },
   {
     label: '🔣', name: '記号',
-    emojis: ['☮️','✝️','☪️','🕉️','☸️','🪯','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘','❌','⭕','🛑','⛔','📛','🚫','💯','💢','♨️','🚷','🚯','🚳','🚱','🔞','📵','🚭','❗','❕','❓','❔','‼️','⁉️','🔅','🔆','〽️','⚠️','🚸','🔱','⚜️','🔰','♻️','✅','🈯','💹','❎','🌐','💠','Ⓜ️','🌀','💤','🏧','🚾','♿','🅿️','🛗','🈳','🈂️','🛂','🛃','🛄','🛅','🚹','🚺','🚼','⚧️','🚻','🚮','🎦','📶','🈁','ℹ️','🔤','🔡','🔠','🆖','🆗','🆙','🆒','🆕','🆓','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🔢','#️⃣','*️⃣','⏏️','▶️','⏸️','⏹️','⏺️','⏭️','⏮️','⏩','⏪','⏫','⏬','◀️','🔼','🔽','➡️','⬅️','⬆️','⬇️','↗️','↘️','↙️','↖️','↕️','↔️','↪️','↩️','⤴️','⤵️','🔀','🔁','🔂','🔄','🔃','➕','➖','➗','✖️','♾️','💲','💱','™️','©️','®️','〰️','➰','➿','🔚','🔙','🔛','🔝','🔜','✔️','☑️','🔘','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔷','🔶','🔹','🔸','🔲','🔳','▪️','▫️','◾','◽','◼️','◻️','⬛','⬜','🟥','🟧','🟨','🟩','🟦','🟪','🟫','🔈','🔇','🔉','🔊','🔔','🔕','📣','📢','💬','💭','🗯️','♠️','♣️','♥️','♦️','🃏','🎴','🀄']
+    emojis: ['🟰','☮️','✝️','☪️','🕉️','☸️','🪯','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘','❌','⭕','🛑','⛔','📛','🚫','💯','💢','♨️','🚷','🚯','🚳','🚱','🔞','📵','🚭','❗','❕','❓','❔','‼️','⁉️','🔅','🔆','〽️','⚠️','🚸','🔱','⚜️','🔰','♻️','✅','🈯','💹','❎','🌐','💠','Ⓜ️','🌀','💤','🏧','🚾','♿','🅿️','🛗','🈳','🈂️','🛂','🛃','🛄','🛅','🚹','🚺','🚼','⚧️','🚻','🚮','🎦','📶','🈁','ℹ️','🔤','🔡','🔠','🆖','🆗','🆙','🆒','🆕','🆓','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🔢','#️⃣','*️⃣','⏏️','▶️','⏸️','⏹️','⏺️','⏭️','⏮️','⏩','⏪','⏫','⏬','◀️','🔼','🔽','➡️','⬅️','⬆️','⬇️','↗️','↘️','↙️','↖️','↕️','↔️','↪️','↩️','⤴️','⤵️','🔀','🔁','🔂','🔄','🔃','➕','➖','➗','✖️','♾️','💲','💱','™️','©️','®️','〰️','➰','➿','🔚','🔙','🔛','🔝','🔜','✔️','☑️','🔘','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔷','🔶','🔹','🔸','🔲','🔳','▪️','▫️','◾','◽','◼️','◻️','⬛','⬜','🟥','🟧','🟨','🟩','🟦','🟪','🟫','🔈','🔇','🔉','🔊','🔔','🔕','📣','📢','💬','💭','🗯️','♠️','♣️','♥️','♦️','🃏','🎴','🀄']
   },
   {
     label: '🏁', name: '旗',
@@ -294,6 +326,7 @@ var EMOJI_CATS = [
 ];
 
 var selected = [];
+var cursorPos = 0;
 
 // 初期化
 function init() {
@@ -337,30 +370,44 @@ function renderEmojiGrid(catIdx) {
   });
 }
 
-// 絵文字を選択に追加
+// 絵文字をカーソル位置に挿入
 function addEmoji(emoji) {
-  if (selected.length >= 10) {
-    showToast('絵文字は最大10個まで');
-    return;
-  }
-  selected.push(emoji);
+  if (selected.length >= 10) { showToast('絵文字は最大10個まで'); return; }
+  selected.splice(cursorPos, 0, emoji);
+  cursorPos++;
   updateSelectedDisplay();
 }
 
-// ①最後の絵文字を1個削除
-function deleteLastEmoji() {
-  if (selected.length === 0) return;
-  selected.pop();
+// カーソル位置に空白を挿入
+function insertSpace() {
+  if (selected.length >= 10) { showToast('絵文字は最大10個まで'); return; }
+  selected.splice(cursorPos, 0, ' ');
+  cursorPos++;
+  updateSelectedDisplay();
+}
+
+// カーソルを移動
+function moveCursor(dir) {
+  cursorPos = Math.max(0, Math.min(selected.length, cursorPos + dir));
+  updateSelectedDisplay();
+}
+
+// カーソル位置の前の1個を削除
+function deleteAtCursor() {
+  if (cursorPos === 0 || selected.length === 0) return;
+  selected.splice(cursorPos - 1, 1);
+  cursorPos--;
   updateSelectedDisplay();
 }
 
 // 全クリア（投稿後などに使用）
 function clearSelected() {
   selected = [];
+  cursorPos = 0;
   updateSelectedDisplay();
 }
 
-// 選択中の表示を更新
+// 選択中の表示を更新（カーソル付き）
 function updateSelectedDisplay() {
   var display = document.getElementById('selectedDisplay');
   var badge = document.getElementById('countBadge');
@@ -371,7 +418,12 @@ function updateSelectedDisplay() {
     badge.textContent = '';
     postBtn.disabled = true;
   } else {
-    display.textContent = selected.join('');
+    var before = selected.slice(0, cursorPos).join('');
+    var after = selected.slice(cursorPos).join('');
+    display.innerHTML =
+      (before ? '<span>' + before + '</span>' : '') +
+      '<span class="emoji-cursor"></span>' +
+      (after ? '<span>' + after + '</span>' : '');
     badge.textContent = selected.length + '/10';
     postBtn.disabled = false;
   }
